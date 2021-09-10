@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "MyGPS-Tracking",
+    "slug": "MyGPS-Tracking",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "MyGPS-Tracking"
+}
