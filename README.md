@@ -4,6 +4,8 @@
 <img src="readme/logo.png" width="20%" />
 </p>
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aplicativo desenvolvino em typescript utilizando React-Native Expo Bare workflow. Consiste na aquisição de dados de geolocalização, tais como latitude, longitude e velocidade, e no envio destes para o servidor. Em situações em que a conexão não é estabelecida (sombra), o aplicativo os armazena até que a conexão seja retomada e eles possam ser enviados.
+
 ## 📡 Api
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Para que o app se cominique com a api é necessario alterar o arquivo `src/services/api.ts`, informando o endereço ip em que ela está localizada
@@ -22,6 +24,12 @@ export { api };
 ```
 
 ## 💻 Ambiente
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Certifique-se de ter o Expo CLI instalado em sua máquina e o Expo Go em seu dispositivo conforme a [documentação do Expo](https://docs.expo.dev/get-started/installation/).
+
+```
+npm install --global expo-cli
+```
 
 Ferramentas | versão
 :---        | ---:
@@ -117,6 +125,5 @@ MyGPS-Tracking
 ## :clipboard: Status
 
 <p align= "center">
-<img src="readme/status.jpg" width="40%" />
+<img src="readme/perca_e_retomada_conex.gif" width="40%" />
 </p>
-
