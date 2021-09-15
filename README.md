@@ -8,7 +8,7 @@
 
 ## 📡 Api
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Para que o app se cominique com a api é necessario alterar o arquivo `src/services/api.ts`, informando o endereço ip em que ela está localizada
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Para que o app se comunique com a api é necessario alterar o arquivo `src/services/api.ts`, informando o endereço ip em que ela está localizada
 ```javascript
 import axios from 'axios';
 
