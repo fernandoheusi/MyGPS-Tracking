@@ -4,7 +4,7 @@
 <img src="readme/logo.png" width="20%" />
 </p>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aplicativo desenvolvimento em typescript utilizando React-Native Expo Bare workflow. Consiste na aquisição de dados de geolocalização, tais como latitude, longitude e velocidade, e no envio destes para o servidor. Em situações em que a conexão não é estabelecida (sombra), o aplicativo os armazena até que a conexão seja retomada e eles possam ser enviados.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aplicativo desenvolvimento em typescript utilizando React-Native e Expo Bare workflow. Consiste na aquisição de dados de geolocalização, tais como latitude, longitude e velocidade, e no envio destes para o servidor. Em situações em que a conexão não é estabelecida (sombra), o aplicativo os armazena até que a conexão seja retomada e eles possam ser enviados.
 
 ## 📡 Api
 
