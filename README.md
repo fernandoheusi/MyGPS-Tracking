@@ -4,7 +4,24 @@
 <img src="readme/logo.png" width="20%" />
 </p>
 
-## 🌐 Ambiente
+## 📡 Api
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Para que o app se cominique com a api é necessario alterar o arquivo `src/services/api.ts`, informando o endereço ip em que ela está localizada
+```javascript
+import axios from 'axios';
+
+const api = axios.create({
+	baseURL: 'http://localhost:8081'
+	//altere a string a cima pelo endereço ip da api 
+	//baseURL: 'http://xxx.xxx.xxx.x:8081'
+});
+
+api.defaults.timeout = 500;
+
+export { api };
+```
+
+## 💻 Ambiente
 
 Ferramentas | versão
 :---        | ---:
@@ -43,51 +60,51 @@ react-native-web                          |0.13.18
 styled-components                         |5.3.1
 typescript                                |4.0.8
 
-## Diretório
+## 📁 Diretório
 ```javascript
 MyGPS-Tracking
-╠═index.js
-╠═ App.tsx
-╚═src
-   ╟─@types
-   ║  ├─ declaration.d.ts
-   ╟─assets
-   ║  ├─ logo.svg
-   ║  └─ splash.png
-   ╠═components
-   ║  ╠═ HeaderButton
-   ║  ║  ├─ index.tsx
-   ║  ║  └─ styles.ts
-   ║  ╠═ SelectButton
-   ║  ║  ├─ index.tsx
-   ║  ║  └─ styles.ts
-   ║  ╠═ Separator
-   ║  ║  └─ index.tsx
-   ║  ╚═ StatusCard
-   ║     ├─ index.tsx  
-   ║     └─ styles.ts 
-   ╟─contexts
-   ║  └─ StatusContext.tsx
-   ╟─routes
-   ║  └─ app.routes.tsx
-   ╟─screens
-   ║  ╠═ Home
-   ║  ║  ├─ index.tsx
-   ║  ║  └─ styles.ts
-   ║  ╚═ Status
-   ║     ├─ index.tsx
-   ║     └─ styles.ts
-   ╟─services
-   ║  └─ api.ts
-   ╚═styles
-      ├─ styled.d.ts
-      └─ theme.ts
+  ╠═index.js
+  ╠═ App.tsx
+  ╚═src
+     ╟─@types
+     ║  ├─ declaration.d.ts
+     ╟─assets
+     ║  ├─ logo.svg
+     ║  └─ splash.png
+     ╠═components
+     ║  ╠═ HeaderButton
+     ║  ║  ├─ index.tsx
+     ║  ║  └─ styles.ts
+     ║  ╠═ SelectButton
+     ║  ║  ├─ index.tsx
+     ║  ║  └─ styles.ts
+     ║  ╠═ Separator
+     ║  ║  └─ index.tsx
+     ║  ╚═ StatusCard
+     ║     ├─ index.tsx  
+     ║     └─ styles.ts 
+     ╟─contexts
+     ║  └─ StatusContext.tsx
+     ╠═routes
+     ║  ╚═ app.routes.tsx
+     ╠═screens
+     ║  ╠═ Home
+     ║  ║  ├─ index.tsx
+     ║  ║  └─ styles.ts
+     ║  ╚═ Status
+     ║     ├─ index.tsx
+     ║     └─ styles.ts
+     ╟─services
+     ║  └─ api.ts
+     ╚═styles
+        ├─ styled.d.ts
+        └─ theme.ts
 ```
 
-## ⌚ Splash Screen
+## 🕒 Splash Screen
 
 <p align= "center">
-<img src="readme/splash.jpg" width="40%" />
+<img src="readme/splash.jpg" width="40%"/>
 </p>
 
 ## 🏠 Home
