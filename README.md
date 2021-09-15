@@ -29,6 +29,7 @@ node        | 15.7.0
 yarn        |1.22.10
 expo        |4.7.2
 
+
 ## ⚙ Bibliotecas
 
 Biblioteca                                | Versão
@@ -110,7 +111,7 @@ MyGPS-Tracking
 ## 🏠 Home
 
 <p align= "center">
-<img src="readme/home.jpg" width="40%" />
+<img src="readme/home.gif" width="40%" />
 </p>
 
 ## :clipboard: Status
