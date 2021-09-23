@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Switch } from 'react-native';
+import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 import uuid from 'react-native-uuid';
 import NetInfo from '@react-native-community/netinfo';
@@ -44,34 +45,14 @@ interface PointsProps{
 	time: string;
 }
 
-let trackInterval:NodeJS.Timer;
-
-let enabled = false;
-function getEnabled(){
-	return enabled;
-}
-
-let array:PointsProps[] = [];
-function getArray(){
-	return array;
-}
-
-let pointStatus:StatusProps[] = [];
-function getStatus(){
-	return pointStatus;
-}
-
 export function Home({navigation}:Props){
 	const [statusConnection,setStatusConnection] = useState(false);
 	
 	const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-	enabled = isSwitchEnabled;
 
 	const [packageArray,setPackageArray] = useState<PointsProps[]>([]);
-	array = packageArray;
 
 	const {statusArray,setStatusArray} = useStatus();
-	pointStatus = statusArray;
 
 	const [connectionInterval, setConnectionInterval] = useState(10);
 
@@ -91,89 +72,36 @@ export function Home({navigation}:Props){
 		setConnectionInterval(interval);
 	}
 	
-	async function track(){
-		array = getArray();
-		enabled = getEnabled();
-		pointStatus = getStatus();
+const LOCATION_TASK_NAME = 'background-location-task';
 
-		if (enabled == false){
-			clearInterval(trackInterval);
-			return
-		}
+const track = async () => {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status === 'granted') {
+		console.log('to aqui');
+    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      accuracy: Location.Accuracy.Balanced,
+			timeInterval: 1000,
+			distanceInterval: 0
+    });
+  }
+};
 
-		let { status } = await Location.requestBackgroundPermissionsAsync();
-		if (status !== 'granted') {
-			Alert.alert('Erro','Você não tem permissão para isso');
-			return;
-		}
 
-		let location = await Location.getLastKnownPositionAsync({});
-		let date = new Date(location!.timestamp);
-		let time = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
+  if (error) {
+    // Error occurred - check `error.message` for more details.
+    return;
+  }
+  if (data && isSwitchEnabled) {
+    const { locations } = data;
+    // do something with the locations captured in the background
+    console.log(data);
+  }
+});
 
-		let locationFormated = {
-			id: `${date.getTime()}`,
-			latitude: location!.coords.latitude,
-			longitude: location!.coords.longitude,
-			speed: location!.coords.speed!,
-			time
-		}
-
-		let packageAtualized = [
-			...array,
-			locationFormated
-		]
-
-		setPackageArray(packageAtualized);
-
-		let pointStatusFormated = {
-			id: locationFormated.id,
-			synchronous: false,
-			time: date
-		}
-
-		let pointsAtualized = [
-			pointStatusFormated,
-			...pointStatus
-		]
-
-		setStatusArray(pointsAtualized);
-
-		function updateStates(){
-			let pointsSynchronized = pointStatus.map(item => {
-				item.synchronous = true
-				return item
-			});
-			setStatusArray(pointsSynchronized);
-			setPackageArray([]);
-		}
-
-			try {
-				const date = new Date();
-				const id = String(date.getTime());
-				const response = await api.post(`/points/${id}`,array);
-				console.log('id: ',id)
-				console.log('arraySuccess: ',array);
-
-				if(response) {updateStates()};
-
-				console.log('response: ',response.data.status);
-			} catch (error) {
-				console.log(error);
-				console.log('arrayError: ',array);
-			}
-			
-			console.log("connectionInterval: ",connectionInterval);
-			return
-	};
-
-	useEffect(() =>{
-		clearInterval(trackInterval);
-		
-		const interval = connectionInterval * 1000;
-		trackInterval = setInterval(track,interval);
-	},[isSwitchEnabled,connectionInterval]);
-
+	useEffect(() => {
+		track();
+	},[]);
 
 	return(
 		<Container>
