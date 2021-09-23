@@ -1,8 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { 
+	useEffect, 
+	useState 
+} from 'react';
+
 import { Alert, Switch } from 'react-native';
 import * as Location from 'expo-location';
 import uuid from 'react-native-uuid';
 import NetInfo from '@react-native-community/netinfo';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { HeaderButton } from '../../components/HeaderButton';
 import { SelectButton } from '../../components/SelectButton';
@@ -14,7 +19,6 @@ import Logo from '../../assets/logo.svg';
 
 import { useStatus } from '../../contexts/statusContext';
 
-import { StackScreenProps } from '@react-navigation/stack';
 import { StatusProps } from '../Status';
 
 import { 
@@ -44,74 +48,51 @@ interface PointsProps{
 	time: string;
 }
 
-let trackInterval:NodeJS.Timer;
-
-let enabled = false;
-function getEnabled(){
-	return enabled;
-}
-
-let array:PointsProps[] = [];
-function getArray(){
-	return array;
-}
-
-let pointStatus:StatusProps[] = [];
-function getStatus(){
-	return pointStatus;
-}
-
 export function Home({navigation}:Props){
 	const [statusConnection,setStatusConnection] = useState(false);
-	
 	const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-	enabled = isSwitchEnabled;
-
 	const [packageArray,setPackageArray] = useState<PointsProps[]>([]);
-	array = packageArray;
+	const [connectionInterval, setConnectionInterval] = useState(10);
 
 	const {statusArray,setStatusArray} = useStatus();
-	pointStatus = statusArray;
 
-	const [connectionInterval, setConnectionInterval] = useState(10);
+	let trackInterval:NodeJS.Timer;
 
 	NetInfo.addEventListener(state => {
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
 	});
 
-	function handleStatus(){
+	const handleStatus = () => {
 		navigation.navigate('Status');
 	}
 
-	function toggleSwitch(){
+	const toggleSwitch = () => {
 		setIsSwitchEnabled(state => !state);
 	}
 
-	function handleSelectInterval(interval: 10 | 5 | 3 | 1){
+	const handleSelectInterval = (interval: 10 | 5 | 3 | 1) => {
 		setConnectionInterval(interval);
 	}
-	
-	async function track(){
-		array = getArray();
-		enabled = getEnabled();
-		pointStatus = getStatus();
 
-		if (enabled == false){
+	const track = async() => {
+		console.log("isSwitchEnabled: ",isSwitchEnabled);
+
+		if (!isSwitchEnabled){
 			clearInterval(trackInterval);
 			return
 		}
 
-		let { status } = await Location.requestBackgroundPermissionsAsync();
+		const { status } = await Location.requestBackgroundPermissionsAsync();
 		if (status !== 'granted') {
 			Alert.alert('Erro','Você não tem permissão para isso');
 			return;
 		}
 
-		let location = await Location.getLastKnownPositionAsync({});
-		let date = new Date(location!.timestamp);
-		let time = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+		const location = await Location.getLastKnownPositionAsync({});
+		const date = new Date(location!.timestamp);
+		const time = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
-		let locationFormated = {
+		const locationFormated = {
 			id: `${date.getTime()}`,
 			latitude: location!.coords.latitude,
 			longitude: location!.coords.longitude,
@@ -119,28 +100,28 @@ export function Home({navigation}:Props){
 			time
 		}
 
-		let packageAtualized = [
-			...array,
+		const packageAtualized = [
+			...packageArray,
 			locationFormated
 		]
 
 		setPackageArray(packageAtualized);
 
-		let pointStatusFormated = {
+		const pointStatusFormated = {
 			id: locationFormated.id,
 			synchronous: false,
 			time: date
 		}
 
-		let pointsAtualized = [
+		const pointsAtualized = [
 			pointStatusFormated,
-			...pointStatus
+			...statusArray
 		]
 
 		setStatusArray(pointsAtualized);
 
-		function updateStates(){
-			let pointsSynchronized = pointStatus.map(item => {
+		const updateStates = () => {
+			const pointsSynchronized = statusArray.map(item => {
 				item.synchronous = true
 				return item
 			});
@@ -148,32 +129,34 @@ export function Home({navigation}:Props){
 			setPackageArray([]);
 		}
 
-			try {
-				const date = new Date();
-				const id = String(date.getTime());
-				const response = await api.post(`/points/${id}`,array);
-				console.log('id: ',id)
-				console.log('arraySuccess: ',array);
+		try {
+			const date = new Date();
+			const id = String(date.getTime());
+			const response = await api.post(`/points/${id}`,packageArray);
+			console.log('id: ',id)
+			console.log('arraySuccess: ',packageArray);
 
-				if(response) {updateStates()};
+			if(response) {updateStates()};
 
-				console.log('response: ',response.data.status);
-			} catch (error) {
-				console.log(error);
-				console.log('arrayError: ',array);
-			}
-			
-			console.log("connectionInterval: ",connectionInterval);
-			return
+			console.log('response: ',response.data.status);
+		} catch (error) {
+			console.log(error);
+			console.log('arrayError: ',packageArray);
+		}
+
+		console.log("connectionInterval: ",connectionInterval);
+		return
 	};
 
 	useEffect(() =>{
-		clearInterval(trackInterval);
-		
 		const interval = connectionInterval * 1000;
 		trackInterval = setInterval(track,interval);
-	},[isSwitchEnabled,connectionInterval]);
 
+		return (() => {
+			clearInterval(trackInterval);
+			console.log('limpei!');
+		});
+	});
 
 	return(
 		<Container>

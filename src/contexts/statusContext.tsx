@@ -1,4 +1,9 @@
-import React, {createContext, ReactNode, useContext, useState} from 'react';
+import React, {
+	createContext, 
+	ReactNode, 
+	useContext, 
+	useState
+} from 'react';
 import { StatusProps } from '../screens/Status';
 
 interface StatusContextData{
