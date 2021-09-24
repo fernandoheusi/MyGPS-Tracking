@@ -18,4 +18,6 @@ target 'MyGPSTracking' do
   #     flipper_post_install(installer)
   #   end
   # end
+  pod 'react-native-background-timer', :path => '../node_modules/react-native-background-timer'
+
 end

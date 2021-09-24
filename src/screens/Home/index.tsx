@@ -8,6 +8,7 @@ import * as Location from 'expo-location';
 import uuid from 'react-native-uuid';
 import NetInfo from '@react-native-community/netinfo';
 import { StackScreenProps } from '@react-navigation/stack';
+import BackgroundTimer from 'react-native-background-timer';
 
 import { HeaderButton } from '../../components/HeaderButton';
 import { SelectButton } from '../../components/SelectButton';
@@ -56,8 +57,6 @@ export function Home({navigation}:Props){
 
 	const {statusArray,setStatusArray} = useStatus();
 
-	let trackInterval:NodeJS.Timer;
-
 	NetInfo.addEventListener(state => {
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
 	});
@@ -78,7 +77,7 @@ export function Home({navigation}:Props){
 		console.log("isSwitchEnabled: ",isSwitchEnabled);
 
 		if (!isSwitchEnabled){
-			clearInterval(trackInterval);
+			BackgroundTimer.stopBackgroundTimer();
 			return
 		}
 
@@ -150,10 +149,10 @@ export function Home({navigation}:Props){
 
 	useEffect(() =>{
 		const interval = connectionInterval * 1000;
-		trackInterval = setInterval(track,interval);
+		BackgroundTimer.runBackgroundTimer(track,interval);
 
 		return (() => {
-			clearInterval(trackInterval);
+			BackgroundTimer.stopBackgroundTimer();
 			console.log('limpei!');
 		});
 	});
