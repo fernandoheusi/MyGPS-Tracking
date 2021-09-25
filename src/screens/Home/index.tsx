@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, Switch } from 'react-native';
 import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
-import uuid from 'react-native-uuid';
 import NetInfo from '@react-native-community/netinfo';
 
 import { HeaderButton } from '../../components/HeaderButton';
@@ -16,7 +15,6 @@ import Logo from '../../assets/logo.svg';
 import { useStatus } from '../../contexts/statusContext';
 
 import { StackScreenProps } from '@react-navigation/stack';
-import { StatusProps } from '../Status';
 
 import { 
 	ConnectionStatusCard, 
@@ -36,7 +34,7 @@ import {
 import theme from '../../styles/theme';
 
 type Props = StackScreenProps<any,'Home'>;
-
+type IntervalTypes =  10000 | 5000 | 3000 | 1000;
 interface PointsProps{
 	id: string;
 	latitude: number;
@@ -46,62 +44,135 @@ interface PointsProps{
 }
 
 export function Home({navigation}:Props){
-	const [statusConnection,setStatusConnection] = useState(false);
-	
+	const [statusConnection,setStatusConnection] = useState(false); //continua aqui
 	const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-
+	const [isTracking,setIsTracking] = useState(false);
 	const [packageArray,setPackageArray] = useState<PointsProps[]>([]);
+	const [connectionInterval, setConnectionInterval] = useState<IntervalTypes>(10000);
 
 	const {statusArray,setStatusArray} = useStatus();
 
-	const [connectionInterval, setConnectionInterval] = useState(10);
-
-	NetInfo.addEventListener(state => {
+	NetInfo.addEventListener(state => {  //continua aqui
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
 	});
 
-	function handleStatus(){
+	function handleStatus(){ //continua aqui
 		navigation.navigate('Status');
 	}
 
 	function toggleSwitch(){
+		if (isSwitchEnabled) {
+			stopTracking();
+		} 
+		if (!isSwitchEnabled) {
+			startTracking(connectionInterval);
+		}
 		setIsSwitchEnabled(state => !state);
 	}
 
-	function handleSelectInterval(interval: 10 | 5 | 3 | 1){
+	function handleSelectInterval(interval: IntervalTypes){
+		if (isTracking){
+			stopTracking();
+			startTracking(interval);
+		}
 		setConnectionInterval(interval);
 	}
-	
-const LOCATION_TASK_NAME = 'background-location-task';
 
-const track = async () => {
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  if (status === 'granted') {
-		console.log('to aqui');
-    await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-      accuracy: Location.Accuracy.Balanced,
-			timeInterval: 1000,
-			distanceInterval: 0
-    });
-  }
-};
+	const LOCATION_TASK_NAME = 'backgroundLocationTask';
+
+	const startTracking = async (connectionInterval: IntervalTypes) => {
+		const { status } = await Location.requestForegroundPermissionsAsync();
+		if (status === 'granted') {
+			console.log('to aqui');
+			await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+				accuracy: Location.Accuracy.Lowest,
+				timeInterval: connectionInterval,
+				deferredUpdatesInterval: 10,
+				distanceInterval: 0,
+				foregroundService: {
+					notificationTitle: "BackgroundLocation Is On",
+					notificationBody: "We are tracking your location",
+				},
+			});
+		}
+
+		setIsTracking(true);
+	}
 
 
-TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
-  if (error) {
+	const stopTracking = async () => {
+		await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+		console.log('[tracking]', 'stopped background location task');
+		setIsTracking(false);
+	}
+
+	TaskManager.defineTask(LOCATION_TASK_NAME, async ({data,error}) => {
+  	if (error) {
     // Error occurred - check `error.message` for more details.
-    return;
-  }
-  if (data && isSwitchEnabled) {
-    const { locations } = data;
-    // do something with the locations captured in the background
-    console.log(data);
-  }
-});
+    	return;
+  	}
+  	if (data) {
+			const [location] = (data as any).locations as Location.LocationObject[];
 
-	useEffect(() => {
-		track();
-	},[]);
+			const date = new Date(location!.timestamp);
+			const time = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+			const locationFormated = {
+				id: `${date.getTime()}`,
+				latitude: location!.coords.latitude,
+				longitude: location!.coords.longitude,
+				speed: location!.coords.speed!,
+				time
+			}
+
+			const packageAtualized = [
+				...packageArray,
+				locationFormated
+			]
+
+			setPackageArray(packageAtualized);
+
+			const pointStatusFormated = {
+				id: locationFormated.id,
+				synchronous: false,
+				time: date
+			}
+
+			const pointsAtualized = [
+				pointStatusFormated,
+				...statusArray
+			]
+
+			setStatusArray(pointsAtualized);
+
+			const updateStates = () => {
+				const pointsSynchronized = statusArray.map(item => {
+					item.synchronous = true
+					return item
+				});
+				setStatusArray(pointsSynchronized);
+				setPackageArray([]);
+			}
+
+			try {
+				const date = new Date();
+				const id = String(date.getTime());
+				const response = await api.post(`/points/${id}`,packageArray);
+				console.log('id: ',id)
+				console.log('arraySuccess: ',packageArray);
+
+				if(response) {updateStates()};
+
+				console.log('response: ',response.data.status);
+			} catch (error) {
+				console.log(error);
+				console.log('arrayError: ',packageArray);
+			}
+
+			console.log("connectionInterval: ",connectionInterval);
+			return
+		}
+	});
 
 	return(
 		<Container>
@@ -152,26 +223,26 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
 				<SelectButtons>
 					<SelectButton
 						value={10}
-						isActive={connectionInterval === 10? true : false}
-						onPress={() => handleSelectInterval(10)}
+						isActive={connectionInterval === 10000? true : false}
+						onPress={() => handleSelectInterval(10000)}
 					/>
 
 					<SelectButton
 						value={5}
-						isActive={connectionInterval === 5? true : false}
-						onPress={() => handleSelectInterval(5)}
+						isActive={connectionInterval === 5000? true : false}
+						onPress={() => handleSelectInterval(5000)}
 					/>
 
 					<SelectButton
 						value={3}
-						isActive={connectionInterval === 3? true : false}
-						onPress={() => handleSelectInterval(3)}
+						isActive={connectionInterval === 3000? true : false}
+						onPress={() => handleSelectInterval(3000)}
 					/>
 
 					<SelectButton
 						value={1}
-						isActive={connectionInterval === 1? true : false}
-						onPress={() => handleSelectInterval(1)}
+						isActive={connectionInterval === 1000? true : false}
+						onPress={() => handleSelectInterval(1000)}
 					/>
 				</SelectButtons>	
 			</IntervalSelection>
