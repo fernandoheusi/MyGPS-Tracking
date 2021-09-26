@@ -26,14 +26,14 @@ import {
 	TitleAndStatus 
 } from './styles';
 import theme from '../../styles/theme';
-import { useTracking } from '../../services/geoLocation';
+import { useHome } from './hooks';
 
 type Props = StackScreenProps<any,'Home'>;
 
 export function Home({navigation}:Props){
 	const [statusConnection,setStatusConnection] = useState(false);
 
-	const track = useTracking();
+	const home = useHome();
 
 	NetInfo.addEventListener(state => {
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
@@ -69,7 +69,7 @@ export function Home({navigation}:Props){
 				<StatusTexts>
 					<TextDark>Status do Serviço</TextDark>
 
-					<TextLight>{track.isSwitchEnabled? 'Serviço ativo' : 'Serviço inativo'}</TextLight>
+					<TextLight>{home.isSwitchEnabled? 'Serviço ativo' : 'Serviço inativo'}</TextLight>
 				</StatusTexts>
 
 				<Switch 
@@ -78,11 +78,11 @@ export function Home({navigation}:Props){
 						true: theme.colors.text_light
 					}}
 					thumbColor={
-						track.isSwitchEnabled ? theme.colors.enabled : theme.colors.header
+						home.isSwitchEnabled ? theme.colors.enabled : theme.colors.header
 					}
 					ios_backgroundColor={theme.colors.text_light}
-					onValueChange={track.toggleSwitch}
-					value={track.isSwitchEnabled}
+					onValueChange={home.toggleSwitch}
+					value={home.isSwitchEnabled}
 				/>
 			</ServiceStatus>
 
@@ -92,26 +92,26 @@ export function Home({navigation}:Props){
 				<SelectButtons>
 					<SelectButton
 						value={10}
-						isActive={track.connectionInterval === 10000? true : false}
-						onPress={() => track.handleSelectInterval(10000)}
+						isActive={home.connectionInterval === 10000? true : false}
+						onPress={() => home.handleSelectInterval(10000)}
 					/>
 
 					<SelectButton
 						value={5}
-						isActive={track.connectionInterval === 5000? true : false}
-						onPress={() => track.handleSelectInterval(5000)}
+						isActive={home.connectionInterval === 5000? true : false}
+						onPress={() => home.handleSelectInterval(5000)}
 					/>
 
 					<SelectButton
 						value={3}
-						isActive={track.connectionInterval === 3000? true : false}
-						onPress={() => track.handleSelectInterval(3000)}
+						isActive={home.connectionInterval === 3000? true : false}
+						onPress={() => home.handleSelectInterval(3000)}
 					/>
 
 					<SelectButton
 						value={1}
-						isActive={track.connectionInterval === 1000? true : false}
-						onPress={() => track.handleSelectInterval(1000)}
+						isActive={home.connectionInterval === 1000? true : false}
+						onPress={() => home.handleSelectInterval(1000)}
 					/>
 				</SelectButtons>	
 			</IntervalSelection>

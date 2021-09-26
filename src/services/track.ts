@@ -1,12 +1,13 @@
-import {useState} from 'react';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as TaskManager from 'expo-task-manager';
 import * as Location from 'expo-location';
 
 import { useStatus } from '../contexts/statusContext';
 
 import { api } from './api';
+import { IntervalTypes } from '../screens/Home/hooks';
 
-type IntervalTypes =  10000 | 5000 | 3000 | 1000;
 interface PointsProps{
 	id: string;
 	latitude: number;
@@ -15,61 +16,37 @@ interface PointsProps{
 	time: string;
 }
 
-export function useTracking() {
-	const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-	const [connectionInterval, setConnectionInterval] = useState<IntervalTypes>(10000);
-
-	const [isTracking,setIsTracking] = useState(false);
+export function useTracking(){
 	const [packageArray,setPackageArray] = useState<PointsProps[]>([]);
-
 	const {statusArray,setStatusArray} = useStatus();
 
-	function toggleSwitch(){
-		if (isSwitchEnabled) {
-			stopTracking();
-		} 
-		if (!isSwitchEnabled) {
-			startTracking(connectionInterval);
-		}
-		setIsSwitchEnabled(state => !state);
-	}
-
-	function handleSelectInterval(interval: IntervalTypes){
-		if (isTracking){
-			stopTracking();
-			startTracking(interval);
-		}
-		setConnectionInterval(interval);
-	}
-
 	const LOCATION_TASK_NAME = 'backgroundLocationTask';
-
+	const packageDataKey ='@mygpstracking:package';
+	const statusDataKey ='@mygpstracking:status';
+	
 	const startTracking = async (connectionInterval: IntervalTypes) => {
 		const { status } = await Location.requestForegroundPermissionsAsync();
 		if (status === 'granted') {
-			console.log('to aqui');
 			await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
 				accuracy: Location.Accuracy.Lowest,
 				timeInterval: connectionInterval,
 				deferredUpdatesInterval: 10,
 				distanceInterval: 0,
 				foregroundService: {
-					notificationTitle: "BackgroundLocation Is On",
-					notificationBody: "We are tracking your location",
+					notificationTitle: "Geo-localização Ativa",
+					notificationBody: "Estamos monitorando sua localização",
 				},
 			});
 		}
-
-		setIsTracking(true);
 	}
 
 
 	const stopTracking = async () => {
 		await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
 		console.log('[tracking]', 'stopped background location task');
-		setIsTracking(false);
 	}
 
+	useEffect(() => {
 	TaskManager.defineTask(LOCATION_TASK_NAME, async ({data,error}) => {
   	if (error) {
     // Error occurred - check `error.message` for more details.
@@ -95,6 +72,7 @@ export function useTracking() {
 			]
 
 			setPackageArray(packageAtualized);
+			await AsyncStorage.setItem(packageDataKey,JSON.stringify(packageAtualized));
 
 			const pointStatusFormated = {
 				id: locationFormated.id,
@@ -108,40 +86,57 @@ export function useTracking() {
 			]
 
 			setStatusArray(pointsAtualized);
+			await AsyncStorage.setItem(statusDataKey,JSON.stringify(pointsAtualized));
 
-			const updateStates = () => {
-				const pointsSynchronized = statusArray.map(item => {
+			const updateStates = async () => {
+				const pointsSynchronized = pointsAtualized.map(item => {
 					item.synchronous = true
 					return item
 				});
+				await AsyncStorage.setItem(statusDataKey,JSON.stringify(pointsSynchronized));
 				setStatusArray(pointsSynchronized);
+
+				await AsyncStorage.setItem(packageDataKey,JSON.stringify([]));
 				setPackageArray([]);
 			}
 
 			try {
 				const date = new Date();
 				const id = String(date.getTime());
-				const response = await api.post(`/points/${id}`,packageArray);
-				console.log('id: ',id)
-				console.log('arraySuccess: ',packageArray);
+				const response = await api.post(`/points/${id}`,packageAtualized);
+				console.log('id: ',id);
+				console.log('package sent: ',packageAtualized);
 
 				if(response) {updateStates()};
 
 				console.log('response: ',response.data.status);
 			} catch (error) {
 				console.log(error);
-				console.log('arrayError: ',packageArray);
+				console.log('package not sent: ',packageAtualized);
 			}
 
-			console.log("connectionInterval: ",connectionInterval);
 			return
 		}
 	});
+	
+	});
+
+	const loadData = async () => {
+		const packageResponse = await AsyncStorage.getItem(packageDataKey);
+		const statusResponse = await AsyncStorage.getItem(statusDataKey);
+		const packageResponseFormated = packageResponse ? JSON.parse(packageResponse) : [];
+		const statusResponseFormated = statusResponse ? JSON.parse(statusResponse) : [];
+
+		setPackageArray(packageResponseFormated);
+		setStatusArray(statusResponseFormated);
+	}
+	
+	useEffect(() => {
+		loadData();
+	},[])
 
 	return {
-		isSwitchEnabled,
-		toggleSwitch,
-		connectionInterval,
-		handleSelectInterval
+		startTracking,
+		stopTracking
 	}
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { HeaderButton } from '../../components/HeaderButton';
 import { StatusCard } from '../../components/StatusCard';
@@ -25,10 +25,30 @@ export interface StatusProps{
 
 export function Status({navigation}:Props){
 	const {statusArray} = useStatus();
-	
+	const [uniqueIdsStatusArray,setUniqueIdsStatusArray] = useState<StatusProps[]>([]);
+
 	function handleReturn(){
 		navigation.navigate('Home');
 	}
+
+	useEffect(() => {
+		const map = new Map();
+		const uniqueIdStatusArray:StatusProps[] = [];
+
+		const unique = (item:StatusProps) => {
+			if(!map.has(item.id)){
+				map.set(item.id, true);
+				uniqueIdStatusArray.push({
+					id: item.id,
+					synchronous: item.synchronous,
+					time: item.time
+				})
+			}
+		}
+
+		statusArray.forEach(unique);
+		setUniqueIdsStatusArray(uniqueIdStatusArray);
+	},[statusArray]);
 	
 	return(
 		<Container>
@@ -39,7 +59,7 @@ export function Status({navigation}:Props){
 			</Header>
 
 			<StatusList 
-				data={statusArray}
+				data={uniqueIdsStatusArray}
 				keyExtractor={item => item.id}
 				renderItem={({ item }) => <StatusCard data={item}/>}
 				ItemSeparatorComponent={() => <Separator />}

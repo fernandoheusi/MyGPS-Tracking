@@ -7,6 +7,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "~1.15.0",
     "@react-native-community/netinfo": "6.0.0",
     "@react-navigation/native": "^6.0.2",
     "@react-navigation/stack": "^6.0.7",
