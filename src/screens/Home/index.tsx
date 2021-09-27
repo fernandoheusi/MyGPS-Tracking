@@ -1,18 +1,6 @@
-<<<<<<< HEAD
-import React, { 
-	useEffect, 
-	useState 
-} from 'react';
-
-import { Alert, Switch } from 'react-native';
-import * as Location from 'expo-location';
-import uuid from 'react-native-uuid';
-=======
 import React, { useState } from 'react';
 import { Switch } from 'react-native';
->>>>>>> BoasPraticas
 import NetInfo from '@react-native-community/netinfo';
-import { StackScreenProps } from '@react-navigation/stack';
 
 import { HeaderButton } from '../../components/HeaderButton';
 import { SelectButton } from '../../components/SelectButton';
@@ -20,13 +8,7 @@ import { Separator } from '../../components/Separator';
 
 import Logo from '../../assets/logo.svg';
 
-<<<<<<< HEAD
-import { useStatus } from '../../contexts/statusContext';
-
-import { StatusProps } from '../Status';
-=======
 import { StackScreenProps } from '@react-navigation/stack';
->>>>>>> BoasPraticas
 
 import { 
 	ConnectionStatusCard, 
@@ -48,30 +30,10 @@ import { useHome } from './hooks';
 
 type Props = StackScreenProps<any,'Home'>;
 
-<<<<<<< HEAD
-interface PointsProps{
-	id: string;
-	latitude: number;
-	longitude: number;
-	speed: number;
-	time: string;
-}
-
-export function Home({navigation}:Props){
-	const [statusConnection,setStatusConnection] = useState(false);
-	const [isSwitchEnabled, setIsSwitchEnabled] = useState(false);
-	const [packageArray,setPackageArray] = useState<PointsProps[]>([]);
-	const [connectionInterval, setConnectionInterval] = useState(10);
-
-	const {statusArray,setStatusArray} = useStatus();
-
-	let trackInterval:NodeJS.Timer;
-=======
 export function Home({navigation}:Props){
 	const [statusConnection,setStatusConnection] = useState(false);
 
 	const home = useHome();
->>>>>>> BoasPraticas
 
 	NetInfo.addEventListener(state => {
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
@@ -81,101 +43,6 @@ export function Home({navigation}:Props){
 		navigation.navigate('Status');
 	}
 
-<<<<<<< HEAD
-	const toggleSwitch = () => {
-		setIsSwitchEnabled(state => !state);
-	}
-
-	const handleSelectInterval = (interval: 10 | 5 | 3 | 1) => {
-		setConnectionInterval(interval);
-	}
-
-	const track = async() => {
-		console.log("isSwitchEnabled: ",isSwitchEnabled);
-
-		if (!isSwitchEnabled){
-			clearInterval(trackInterval);
-			return
-		}
-
-		const { status } = await Location.requestBackgroundPermissionsAsync();
-		if (status !== 'granted') {
-			Alert.alert('Erro','Você não tem permissão para isso');
-			return;
-		}
-
-		const location = await Location.getLastKnownPositionAsync({});
-		const date = new Date(location!.timestamp);
-		const time = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-
-		const locationFormated = {
-			id: `${date.getTime()}`,
-			latitude: location!.coords.latitude,
-			longitude: location!.coords.longitude,
-			speed: location!.coords.speed!,
-			time
-		}
-
-		const packageAtualized = [
-			...packageArray,
-			locationFormated
-		]
-
-		setPackageArray(packageAtualized);
-
-		const pointStatusFormated = {
-			id: locationFormated.id,
-			synchronous: false,
-			time: date
-		}
-
-		const pointsAtualized = [
-			pointStatusFormated,
-			...statusArray
-		]
-
-		setStatusArray(pointsAtualized);
-
-		const updateStates = () => {
-			const pointsSynchronized = statusArray.map(item => {
-				item.synchronous = true
-				return item
-			});
-			setStatusArray(pointsSynchronized);
-			setPackageArray([]);
-		}
-
-		try {
-			const date = new Date();
-			const id = String(date.getTime());
-			const response = await api.post(`/points/${id}`,packageArray);
-			console.log('id: ',id)
-			console.log('arraySuccess: ',packageArray);
-
-			if(response) {updateStates()};
-
-			console.log('response: ',response.data.status);
-		} catch (error) {
-			console.log(error);
-			console.log('arrayError: ',packageArray);
-		}
-
-		console.log("connectionInterval: ",connectionInterval);
-		return
-	};
-
-	useEffect(() =>{
-		const interval = connectionInterval * 1000;
-		trackInterval = setInterval(track,interval);
-
-		return (() => {
-			clearInterval(trackInterval);
-			console.log('limpei!');
-		});
-	});
-
-=======
->>>>>>> BoasPraticas
 	return(
 		<Container>
 			<Header>
