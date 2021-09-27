@@ -25,31 +25,11 @@ export interface StatusProps{
 
 export function Status({navigation}:Props){
 	const {statusArray} = useStatus();
-	const [uniqueIdsStatusArray,setUniqueIdsStatusArray] = useState<StatusProps[]>([]);
 
 	function handleReturn(){
 		navigation.navigate('Home');
 	}
 
-	useEffect(() => {
-		const map = new Map();
-		const uniqueIdStatusArray:StatusProps[] = [];
-
-		const unique = (item:StatusProps) => {
-			if(!map.has(item.id)){
-				map.set(item.id, true);
-				uniqueIdStatusArray.push({
-					id: item.id,
-					synchronous: item.synchronous,
-					time: item.time
-				})
-			}
-		}
-
-		statusArray.forEach(unique);
-		setUniqueIdsStatusArray(uniqueIdStatusArray);
-	},[statusArray]);
-	
 	return(
 		<Container>
 			<Header>
@@ -59,7 +39,9 @@ export function Status({navigation}:Props){
 			</Header>
 
 			<StatusList 
-				data={uniqueIdsStatusArray}
+				data={statusArray}
+				updateCellsBatchingPeriod={100}
+				windowSize={10}
 				keyExtractor={item => item.id}
 				renderItem={({ item }) => <StatusCard data={item}/>}
 				ItemSeparatorComponent={() => <Separator />}

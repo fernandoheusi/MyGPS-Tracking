@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 
 import { useTracking } from '../../services/track';
 
@@ -11,26 +11,28 @@ export function useHome() {
 
 	const track = useTracking();
 
-	const toggleSwitch = () => {
+	const toggleSwitch = async () => {
 		if (isSwitchEnabled) {
-			track.stopTracking();
-			setIsTracking(false);
+			setIsTracking(await track.stopTracking());
 		} 
 		if (!isSwitchEnabled) {
-			track.startTracking(connectionInterval);
-			setIsTracking(true);
+			setIsTracking(await track.startTracking(connectionInterval));
 		}
 		setIsSwitchEnabled(state => !state);
 	}
 
-	const handleSelectInterval = (interval: IntervalTypes) => {
+	const handleSelectInterval = async (interval: IntervalTypes) => {
 		if (isTracking){
-			track.stopTracking();
-			track.startTracking(interval);
+			await track.stopTracking();
+			await track.startTracking(interval);
 		}
 		setConnectionInterval(interval);
 	}
 
+	useEffect(() => {
+		if(isTracking && !isSwitchEnabled) track.stopTracking()
+	},[])
+	
 	return {
 		isSwitchEnabled,
 		toggleSwitch,
