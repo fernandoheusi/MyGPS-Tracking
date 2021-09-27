@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { 
 	useEffect, 
 	useState 
@@ -6,6 +7,10 @@ import React, {
 import { Alert, Switch } from 'react-native';
 import * as Location from 'expo-location';
 import uuid from 'react-native-uuid';
+=======
+import React, { useState } from 'react';
+import { Switch } from 'react-native';
+>>>>>>> BoasPraticas
 import NetInfo from '@react-native-community/netinfo';
 import { StackScreenProps } from '@react-navigation/stack';
 
@@ -13,13 +18,15 @@ import { HeaderButton } from '../../components/HeaderButton';
 import { SelectButton } from '../../components/SelectButton';
 import { Separator } from '../../components/Separator';
 
-import { api } from '../../services/api';
-
 import Logo from '../../assets/logo.svg';
 
+<<<<<<< HEAD
 import { useStatus } from '../../contexts/statusContext';
 
 import { StatusProps } from '../Status';
+=======
+import { StackScreenProps } from '@react-navigation/stack';
+>>>>>>> BoasPraticas
 
 import { 
 	ConnectionStatusCard, 
@@ -37,9 +44,11 @@ import {
 	TitleAndStatus 
 } from './styles';
 import theme from '../../styles/theme';
+import { useHome } from './hooks';
 
 type Props = StackScreenProps<any,'Home'>;
 
+<<<<<<< HEAD
 interface PointsProps{
 	id: string;
 	latitude: number;
@@ -57,6 +66,12 @@ export function Home({navigation}:Props){
 	const {statusArray,setStatusArray} = useStatus();
 
 	let trackInterval:NodeJS.Timer;
+=======
+export function Home({navigation}:Props){
+	const [statusConnection,setStatusConnection] = useState(false);
+
+	const home = useHome();
+>>>>>>> BoasPraticas
 
 	NetInfo.addEventListener(state => {
 			if (state.isConnected != statusConnection){setStatusConnection(state.isConnected!)}
@@ -66,6 +81,7 @@ export function Home({navigation}:Props){
 		navigation.navigate('Status');
 	}
 
+<<<<<<< HEAD
 	const toggleSwitch = () => {
 		setIsSwitchEnabled(state => !state);
 	}
@@ -158,6 +174,8 @@ export function Home({navigation}:Props){
 		});
 	});
 
+=======
+>>>>>>> BoasPraticas
 	return(
 		<Container>
 			<Header>
@@ -184,7 +202,7 @@ export function Home({navigation}:Props){
 				<StatusTexts>
 					<TextDark>Status do Serviço</TextDark>
 
-					<TextLight>{isSwitchEnabled? 'Serviço ativo' : 'Serviço inativo'}</TextLight>
+					<TextLight>{home.isSwitchEnabled? 'Serviço ativo' : 'Serviço inativo'}</TextLight>
 				</StatusTexts>
 
 				<Switch 
@@ -193,11 +211,11 @@ export function Home({navigation}:Props){
 						true: theme.colors.text_light
 					}}
 					thumbColor={
-						isSwitchEnabled ? theme.colors.enabled : theme.colors.header
+						home.isSwitchEnabled ? theme.colors.enabled : theme.colors.header
 					}
 					ios_backgroundColor={theme.colors.text_light}
-					onValueChange={toggleSwitch}
-					value={isSwitchEnabled}
+					onValueChange={home.toggleSwitch}
+					value={home.isSwitchEnabled}
 				/>
 			</ServiceStatus>
 
@@ -207,26 +225,26 @@ export function Home({navigation}:Props){
 				<SelectButtons>
 					<SelectButton
 						value={10}
-						isActive={connectionInterval === 10? true : false}
-						onPress={() => handleSelectInterval(10)}
+						isActive={home.connectionInterval === 10000? true : false}
+						onPress={() => home.handleSelectInterval(10000)}
 					/>
 
 					<SelectButton
 						value={5}
-						isActive={connectionInterval === 5? true : false}
-						onPress={() => handleSelectInterval(5)}
+						isActive={home.connectionInterval === 5000? true : false}
+						onPress={() => home.handleSelectInterval(5000)}
 					/>
 
 					<SelectButton
 						value={3}
-						isActive={connectionInterval === 3? true : false}
-						onPress={() => handleSelectInterval(3)}
+						isActive={home.connectionInterval === 3000? true : false}
+						onPress={() => home.handleSelectInterval(3000)}
 					/>
 
 					<SelectButton
 						value={1}
-						isActive={connectionInterval === 1? true : false}
-						onPress={() => handleSelectInterval(1)}
+						isActive={home.connectionInterval === 1000? true : false}
+						onPress={() => home.handleSelectInterval(1000)}
 					/>
 				</SelectButtons>	
 			</IntervalSelection>

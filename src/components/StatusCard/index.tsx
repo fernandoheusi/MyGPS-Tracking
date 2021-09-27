@@ -8,6 +8,7 @@ interface Props{
 
 export function StatusCard({data}:Props){
 	const {id,synchronous,time} = data;
+	const cardDate = new Date(time);
 
 	return(
 		<Container>
@@ -17,7 +18,7 @@ export function StatusCard({data}:Props){
 				<SynchronousStatus>{synchronous? 'Sincronizado' : 'Pendente sincronizar'}</SynchronousStatus>
 			</Status>
 
-			<Time>{`${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`}</Time>
+			<Time>{`${cardDate.getHours()}:${cardDate.getMinutes()}:${cardDate.getSeconds()}`}</Time>
 		</Container>
 	)
 }

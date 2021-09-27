@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { HeaderButton } from '../../components/HeaderButton';
 import { StatusCard } from '../../components/StatusCard';
@@ -25,11 +25,11 @@ export interface StatusProps{
 
 export function Status({navigation}:Props){
 	const {statusArray} = useStatus();
-	
+
 	function handleReturn(){
 		navigation.navigate('Home');
 	}
-	
+
 	return(
 		<Container>
 			<Header>
@@ -40,6 +40,8 @@ export function Status({navigation}:Props){
 
 			<StatusList 
 				data={statusArray}
+				updateCellsBatchingPeriod={100}
+				windowSize={10}
 				keyExtractor={item => item.id}
 				renderItem={({ item }) => <StatusCard data={item}/>}
 				ItemSeparatorComponent={() => <Separator />}
